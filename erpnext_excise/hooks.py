@@ -89,10 +89,10 @@ app_license = "MIT"
 
 fixtures = ["Custom Field"]
 doc_events = {
-	"Sales Order": {
+	("Sales Order", "Sales Invoice"): {
 		"before_save": "erpnext_excise.erpnext_excise.add_excise.sales_order_excise"
 	},
-	"Purchase Order": {
+	("Purchase Order", "Purchase Invoice"): {
 		"before_save": "erpnext_excise.erpnext_excise.add_excise.purchase_order_excise"
 	}
 }
