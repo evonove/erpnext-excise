@@ -8,6 +8,7 @@ from frappe.utils import cstr, flt
 
 
 def sales_order_excise(sales_order,method):
+	print dir(sales_order)
 	tax = 0
 	for d in sales_order.get("items"):
 		item = frappe.db.sql("""select excise_applied,excise_value,excise_weight from tabItem where item_code="{}" """.format(d.item_code), as_dict=1)
