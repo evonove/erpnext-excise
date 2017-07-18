@@ -33,7 +33,7 @@ def tax_already_applied(order, excise_account, excise_cost_center):
     otherwise create a new entry in the Sales Order manually
     """
     for tax_dict in order.get("taxes"):
-        if tax_dict.account_head == company.excise_account and tax_dict.cost_center == company.excise_cost_center:
+        if tax_dict.account_head == excise_account and tax_dict.cost_center == excise_cost_center:
             if tax_dict.tax_amount != tax_amount:
                 tax_dict.tax_amount = tax_amount
             return True
