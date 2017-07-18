@@ -23,20 +23,8 @@ def get_tax_amount(order):
 
         if item.excise_applied == 1:
             # Here is where the excise is applied
-            amount += flt(item.excise_value) * flt(item.excise_weight) * flt(item_dict.qty)
+            amount += (flt(item.excise_value) * flt(item.excise_weight) * flt(item_dict.qty))
     return amount
-
-
-def tax_already_applied(order, excise_account, excise_cost_center):
-    """
-    If there are already taxes applied to this account_head, add the excise to the existing ones,
-    otherwise create a new entry in the Sales Order manually
-    """
-    for tax_dict in order.get("taxes"):
-        if tax_dict.account_head == excise_account and tax_dict.cost_center == excise_cost_center:
-            if tax_dict.tax_amount != tax_amount:
-                tax_dict.tax_amount = tax_amount
-            return True
 
 
 def sales_order_excise(sales_order, method):
@@ -51,7 +39,15 @@ def sales_order_excise(sales_order, method):
             SELECT excise_account,excise_cost_center
             FROM tabCompany
             WHERE name = "{}" """.format(sales_order.get("company")), as_dict=1)[0]
-        if not tax_already_applied(sales_order, company.excise_account, company.excise_cost_center):
+        # If there are already taxes applied to this account_head, add the excise to the existing ones,
+        # otherwise create a new entry in the Sales Order manually
+        found = False
+        for tax_dict in sales_order.get("taxes"):
+            if tax_dict.account_head == company.excise_account and tax_dict.cost_center == company.excise_cost_center:
+                found = True
+                if tax_dict.tax_amount != tax_amount:
+                    tax_dict.tax_amount = tax_amount
+        if not found:
             new_tax = sales_order.append("taxes",{})
             new_tax.charge_type = "Actual"
             new_tax.account_head = company.excise_account
@@ -75,7 +71,15 @@ def purchase_order_excise(purchase_order, method):
             FROM tabCompany
             WHERE name = "{}" """.format(purchase_order.get("company")), as_dict=1)[0]
 
-        if not tax_already_applied(sales_order, company.excise_account, company.excise_cost_center):
+        # If there are already taxes applied to this account_head, add the excise to the existing ones,
+        # otherwise create a new entry in the Sales Order manually
+        found = False
+        for tax_dict in purchase_order.get("taxes"):
+            if tax_dict.account_head == company.excise_account and tax_dict.cost_center == company.excise_cost_center:
+                found = True
+                if tax_dict.tax_amount != tax_amount:
+                    tax_dict.tax_amount = tax_amount
+        if not found:
             new_tax = purchase_order.append("taxes",{})
             new_tax.charge_type = "Actual"
             new_tax.account_head = company.excise_account
