@@ -31,29 +31,31 @@ def sales_order_excise(sales_order, method):
     """
     Method called on Sales Order's pre_save to add excise tax amount to the item taxes
     """
-    tax_amount = get_tax_amount(sales_order)
+    tax_template = sales_order.get("taxes_and_charges")
+    if tax_template == "Italy Tax":
+        tax_amount = get_tax_amount(sales_order)
 
-    if tax_amount > 0:
-        company = frappe.db.sql(
-            """
-            SELECT excise_account,excise_cost_center
-            FROM tabCompany
-            WHERE name = "{}" """.format(sales_order.get("company")), as_dict=1)[0]
-        # If there are already taxes applied to this account_head, add the excise to the existing ones,
-        # otherwise create a new entry in the Sales Order manually
-        found = False
-        for tax_dict in sales_order.get("taxes"):
-            if tax_dict.account_head == company.excise_account and tax_dict.cost_center == company.excise_cost_center:
-                found = True
-                if tax_dict.tax_amount != tax_amount:
-                    tax_dict.tax_amount = tax_amount
-        if not found:
-            new_tax = sales_order.append("taxes",{})
-            new_tax.charge_type = "Actual"
-            new_tax.account_head = company.excise_account
-            new_tax.cost_center = company.excise_cost_center
-            new_tax.description = "Excise"
-            new_tax.tax_amount = tax_amount
+        if tax_amount > 0:
+            company = frappe.db.sql(
+                """
+                SELECT excise_account,excise_cost_center
+                FROM tabCompany
+                WHERE name = "{}" """.format(sales_order.get("company")), as_dict=1)[0]
+            # If there are already taxes applied to this account_head, add the excise to the existing ones,
+            # otherwise create a new entry in the Sales Order manually
+            found = False
+            for tax_dict in sales_order.get("taxes"):
+                if tax_dict.account_head == company.excise_account and tax_dict.cost_center == company.excise_cost_center:
+                    found = True
+                    if tax_dict.tax_amount != tax_amount:
+                        tax_dict.tax_amount = tax_amount
+            if not found:
+                new_tax = sales_order.append("taxes", {})
+                new_tax.charge_type = "Actual"
+                new_tax.account_head = company.excise_account
+                new_tax.cost_center = company.excise_cost_center
+                new_tax.description = "Excise"
+                new_tax.tax_amount = tax_amount
 
     sales_order.calculate_taxes_and_totals()
 
