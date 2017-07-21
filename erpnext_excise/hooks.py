@@ -91,9 +91,9 @@ doctype_js = {"Sales Order" : "public/js/sales_order.js"}
 
 fixtures = ["Custom Field"]
 doc_events = {
-	("Sales Order", "Sales Invoice", "Quotation"): {
-		"validate": "erpnext_excise.erpnext_excise.add_excise.sales_order_excise"
-	},
+	# ("Sales Order", "Sales Invoice", "Quotation"): {
+	# 	"validate": "erpnext_excise.erpnext_excise.add_excise.sales_order_excise"
+	# },
 	("Purchase Order", "Purchase Invoice"): {
 		"before_save": "erpnext_excise.erpnext_excise.add_excise.purchase_order_excise"
 	}
@@ -131,4 +131,5 @@ doc_events = {
 # override_whitelisted_methods = {
 # 	"frappe.desk.doctype.event.event.get_events": "erpnext_excise.event.get_events"
 # }
+
 
